@@ -6,7 +6,7 @@ see screenshot below). The issues are described below. (note that this is not a 
 affecting our use)  
 It is believed that these issues were introduced in the major driver update released in 2022.
 
-![Screenshot of Radeon software showing driver version(s): 23.19.05.01-231017a...](/img/tst_drv_ver.png)
+![Screenshot of Radeon software showing driver version(s): 23.19.05.01-231017a...](/img/test_drv_ver.png)
 
 My hardware is a Renoir APU's integrated graphics, however I have heard that the same issues also affect newer GPUs
 based on RDNA architecture.
