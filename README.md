@@ -19,6 +19,9 @@ gradient-filled one is a real textured tri.
 
 ![Screenshot of correct rendering](/img/good_render.png)
 
+All described issues have been confirmed to not affect Nvidia GPUs, so I am confident that my implementations are
+correct enough for demonstration purposes.
+
 <br>
 
 ### Issue 1: Not all texture image units are usable
@@ -106,6 +109,10 @@ condition, yet this instruction still causes its subroutine to return.
 
 Vertex program failure causes the triangle to not render (vertex positions are zeroed). Fragment program failure causes
 the triangle to appear black.
+
+This case has a separate `_nv` variant due to crashes observed on Nvidia GPUs. The unsuffixed variant omits a `RET`
+instruction (due to issue 2/`ret_crash`) that does not seem to affect behaviour on AMD GPUs, but may impact Nvidia GPUs.
+Meanwhile the `_nv` version's use of `RET` is correct, but cannot be run on AMD GPUs until issue 2/`ret_crash` is fixed.
 
 <br>
 
