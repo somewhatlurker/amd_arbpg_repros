@@ -23,6 +23,9 @@ gradient-filled one is a real textured tri.
 
 ### Issue 1: Not all texture image units are usable
 
+#### Reproduction case name
+`texunit_limit`
+
 #### Priority
 High (no workaround identified)
 
@@ -55,6 +58,9 @@ specification.
 
 ### Issue 2: RET outside of subroutine crashes/hangs shader compiler
 
+#### Reproduction case name
+`ret_crash`
+
 #### Priority
 High (workaround identified, but suboptimal)
 
@@ -80,6 +86,9 @@ The test render will only work if RET behaves correctly (programs compile and RE
 
 ### Issue 3: Branch conditions are ignored on CAL and RET
 
+#### Reproduction case name
+`branchcond_ignored`
+
 #### Priority
 Low (easy workaround known)
 
@@ -102,6 +111,9 @@ the triangle to appear black.
 
 ### Issue 4: No swizzling of fogcoord attribute
 
+#### Reproduction case name
+`fogcoord_swizzle`
+
 #### Priority
 Low (easy workaround known)
 
@@ -111,6 +123,8 @@ accessing components via swizzling (e.g. `fragment.fogcoord.x`) does not work as
 components, it seems that the unswizzled `((f, 0, 0, 1)` vector is returned instead.
 
 Loading the value into a temporary variable first, then swizzling said variable, works as expected.
+
+This may also affect other attributes (not sure).
 
 #### Reproduction case notes
 The left side of the gradient-filled triangle is correctly rendered by swizzling a temporary variable. The right side
