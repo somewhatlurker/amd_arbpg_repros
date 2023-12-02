@@ -10,3 +10,5 @@ endif()
 
 add_subdirectory(lib)
 add_subdirectory(texunit_limit)
+add_subdirectory(ret_crash)
+add_subdirectory(branchcond_ignored)

@@ -14,13 +14,14 @@ based on RDNA architecture.
 I am not at liberty to discuss the software affected by these issues, but reproduction test cases are included for all
 issues discussed.
 Correct rendering for all tests is a blue triangle in upper left of viewport and red->green gradient-filled triangle in
-lower right (see screenshot).
+lower right (see screenshot). The blue triangle is actually just the viewport background (`glClear`), while the
+gradient-filled one is a real textured tri.
 
 ![Screenshot of correct rendering](/img/good_render.png)
 
 <br>
 
-### Issue 1: Incorrect texture image unit limits
+### Issue 1: Not all texture image units are usable
 
 #### Priority
 High (no workaround identified)
@@ -43,32 +44,63 @@ NV_fragment_program extensions are not fully supported by AMD. Therefore, a fix 
 The reproduction program tries to use the maximum texture unit (according to `MAX_TEXTURE_IMAGE_UNITS_ARB`) in a
 fragment program (`TEX` instruction referencing `texture[n]`). It is expected that this program will compile without
 errors in a correctly functioning driver.  
-If a compilation error does occur, the real maximum texture image unit will be found and logged (for info only).
+If a compilation error does occur, the real maximum texture image unit will be found and logged to stderr (for info/
+reference only, doesn't affect the visual result).
 
 The test render will always use the original fragment program (with maximum texture unit as per
-`MAX_TEXTURE_IMAGE_UNITS_ARB`), so correct output will only be observed if the driver behaves according to docs.
+`MAX_TEXTURE_IMAGE_UNITS_ARB`), so correct output will only be observed if the driver behaves according to the
+specification.
 
 <br>
 
-### Issue 2: RET at top level of program breaks shader compilation
+### Issue 2: RET outside of subroutine crashes/hangs shader compiler
 
 #### Priority
-High (workaround identified, but not guaranteed by specification)
+High (workaround identified, but suboptimal)
 
 #### Issue description
 In NV_fragment_program2 and NV_vertex_program2/3, it is valid to use the `RET` instruction with an empty call stack
 (outside of a subroutine) and doing so should simply terminate the fp/vp early. The AMD shader compiler does not seem
-to be able to handle this use and instead appears to crash.
+to be able to handle this use and instead appears to crash/hang.
 
-This instruction is important to allow for complex branching (ideally shouldn't be done in shaders, but sometimes is
-necessary).
+Programs can generally be rewritten using other control flow statements to not require the use of RET like this, but
+a driver-level fix would be appreciated (if at all possible) to maintain current code structure. In programs utilising
+subroutines, it may be necessary to use additional branching to prevent execution falling into unwanted paths.
 
 #### Reproduction case notes
-<TODO>
+The reproduction program simply uses `RET` instructions outside of subroutines. The vertex program contains one at the
+top-level of execution flow (outside of any control flow structures), while the fragment program places one within an
+`IF` block.  
+Note that compilation of these programs does not fail with an error (which would be logged to stderr), but compilation
+does not return at all!
+
+The test render will only work if RET behaves correctly (programs compile and RET terminates execution).
 
 <br>
 
-### Issue 3: Incorrect swizzling of fogcoord (and possibly other attributes?)
+### Issue 3: Branch conditions are ignored on CAL and RET
+
+#### Priority
+Low (easy workaround known)
+
+#### Issue description
+NV_fragment_program2 and NV_vertex_program2/3 allow the use of a branch condition (e.g. `(GT.x)`) on `CAL` and `RET`
+instructions. However, this seems to be ignored (the instructions execute regardless of specified contition).
+
+This is easy to work around by placing these instructions within `IF` blocks with the appropriate condition, so is not
+considered a priority.
+
+#### Reproduction case notes
+The vertex program used to reproduce the issue uses a `CAL` instruction with `(FL)` (false) branch condition, yet the
+referenced subroutine is still executed. Similarly, the fragment program uses a `RET` instruction with `(FL)` branch
+condition, yet this instruction still causes its subroutine to return.
+
+Vertex program failure causes the triangle to not render (vertex positions are zeroed). Fragment program failure causes
+the triangle to appear black.
+
+<br>
+
+### Issue 4: Incorrect swizzling of fogcoord (and possibly other attributes?)
 
 <TODO>
 (note: observed in frag programs)
