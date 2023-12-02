@@ -100,10 +100,25 @@ the triangle to appear black.
 
 <br>
 
-### Issue 4: Incorrect swizzling of fogcoord (and possibly other attributes?)
+### Issue 4: No swizzling of fogcoord attribute
 
-<TODO>
-(note: observed in frag programs)
+#### Priority
+Low (easy workaround known)
+
+#### Issue description
+When accessing the fogcoord attribute in a fragment program (possible in vertex programs too, untested), directly
+accessing components via swizzling (e.g. `fragment.fogcoord.x`) does not work as expected. Rather than the requested
+components, it seems that the unswizzled `((f, 0, 0, 1)` vector is returned instead.
+
+Loading the value into a temporary variable first, then swizzling said variable, works as expected.
+
+#### Reproduction case notes
+The left side of the gradient-filled triangle is correctly rendered by swizzling a temporary variable. The right side
+uses the same logic but applied to incorrectly unswizzled attribute access instead, resulting in incorrect output.
+
+If comfortable with editing the fragment program code, it's trivial to observe that `fc`, `fc_x`, `fc_y`, ... are all
+interchangeable without affecting the output (hence the observation that the unswizzled vector is returned in all
+cases).
 
 <br>
 
