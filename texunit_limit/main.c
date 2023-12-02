@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h>
 
 const char test_vp[] = "!!ARBvp1.0\n"
-                       //"#OPTION NV_vertex_program3\n"
+                       //"OPTION NV_vertex_program3;\n"
                        "MOV result.position, vertex.attrib[0];\n"
                        "MOV result.texcoord[0], vertex.attrib[1];\n"
                        //"TEMP a; TEX a, vertex.attrib[1], texture[16], 2D;\n"
